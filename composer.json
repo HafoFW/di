@@ -1,0 +1,16 @@
+{
+  "name": "hafo/di",
+  "minimum-stability": "dev",
+  "description": "Hafo Framework Dependency Injection",
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  },
+  "require": {
+    "container-interop/container-interop": "1.*"
+  },
+  "require-dev": {
+    "nette/tester": "1.*"
+  }
+}

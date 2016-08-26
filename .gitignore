@@ -1,0 +1,6 @@
+/.idea
+/vendor
+/vendor
+/composer.lock
+tests/**/output/
+/*.bat
