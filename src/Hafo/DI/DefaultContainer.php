@@ -52,7 +52,13 @@ class DefaultContainer implements Container {
             return FALSE;
         }, \ARRAY_FILTER_USE_KEY);
         foreach($decorators as $decorator) {
-            $decorator($instance, $this);
+            if(is_array($decorator) && !is_callable($decorator)) {
+                foreach($decorator as $actualDecorator) {
+                    $actualDecorator($instance, $this);
+                }
+            } else {
+                $decorator($instance, $this);
+            }
         }
         return $instance;
     }

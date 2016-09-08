@@ -8,7 +8,23 @@ class B {
 }
 class C {
     private $decorated = FALSE;
+    private $decoratedAgain = FALSE;
     function __construct(A $a) {}
+    function decorate() {
+        $this->decorated = TRUE;
+    }
+    function isDecorated() {
+        return $this->decorated;
+    }
+    function decorateAgain() {
+        $this->decoratedAgain = TRUE;
+    }
+    function isDecoratedAgain() {
+        return $this->decoratedAgain;
+    }
+}
+class D {
+    private $decorated = FALSE;
     function decorate() {
         $this->decorated = TRUE;
     }
@@ -26,6 +42,9 @@ return [
     },
     C::class => function(\Hafo\DI\Container $container) {
         return new C($container->get(A::class));
+    },
+    D::class => function(\Hafo\DI\Container $container) {
+        return new D;
     },
     'config' => function(\Hafo\DI\Container $container) {
         return 'Test';

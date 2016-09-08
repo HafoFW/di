@@ -54,6 +54,8 @@ class ContainerTest extends TestCase {
 
     function testDecorator() {
         Assert::true($this->container->get(C::class)->isDecorated());
+        Assert::true($this->container->get(C::class)->isDecoratedAgain());
+        Assert::true($this->container->get(D::class)->isDecorated());
     }
 
     function tearDown() {
