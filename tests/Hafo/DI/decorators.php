@@ -14,4 +14,7 @@ return [
     D::class => function(D $d, \Hafo\DI\Container $container) {
         $d->decorate();
     },
+    E::class => function(E $e, \Hafo\DI\Container $container) {
+        return $container->get(D::class);
+    },
 ];

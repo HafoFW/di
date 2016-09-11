@@ -45,6 +45,10 @@ class DefaultContainer implements Container {
         if(!is_object($instance)) {
             return $instance;
         }
+        return $this->decorate($instance);
+    }
+
+    private function decorate($instance) {
         $decorators = array_filter($this->decorators, function($type) use ($instance) {
             if(get_class($instance) === $type || is_subclass_of($instance, $type) || array_key_exists($type, class_implements($instance))) {
                 return TRUE;
@@ -52,12 +56,15 @@ class DefaultContainer implements Container {
             return FALSE;
         }, \ARRAY_FILTER_USE_KEY);
         foreach($decorators as $decorator) {
-            if(is_array($decorator) && !is_callable($decorator)) {
-                foreach($decorator as $actualDecorator) {
-                    $actualDecorator($instance, $this);
+            $actualDecorators = $decorator;
+            if(!is_array($decorator) && is_callable($decorator)) {
+                $actualDecorators = [$decorator];
+            }
+            foreach($actualDecorators as $actualDecorator) {
+                $ret = $actualDecorator($instance, $this);
+                if($ret) {
+                    $instance = $ret;
                 }
-            } else {
-                $decorator($instance, $this);
             }
         }
         return $instance;

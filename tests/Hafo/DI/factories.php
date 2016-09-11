@@ -32,6 +32,7 @@ class D {
         return $this->decorated;
     }
 }
+class E {}
 
 return [
     A::class => function(\Hafo\DI\Container $container) {
@@ -45,6 +46,9 @@ return [
     },
     D::class => function(\Hafo\DI\Container $container) {
         return new D;
+    },
+    E::class => function(\Hafo\DI\Container $container) {
+        return new E;
     },
     'config' => function(\Hafo\DI\Container $container) {
         return 'Test';
