@@ -43,6 +43,9 @@ class ContainerTest extends TestCase {
         Assert::exception(function () {
             $this->container->get(Blbost::class);
         }, \Hafo\DI\NotFoundException::class);
+        Assert::exception(function() {
+            $this->container->get(Something::class);
+        }, \Hafo\DI\NotFoundException::class);
     }
 
     function testContainerCreate() {

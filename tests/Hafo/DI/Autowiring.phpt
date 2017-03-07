@@ -47,6 +47,8 @@ class AutowiringTest extends TestCase {
         Assert::type(Blbost::class, $this->container->get(Blbost::class));
         Assert::type(Blbost2::class, $this->container->get(Blbost2::class));
         Assert::type(Resolvable::class, $this->container->get(Resolvable::class));
+        Assert::type(Something::class, $this->container->get(Something::class));
+        Assert::type(NeedsSomething::class, $this->container->get(NeedsSomething::class));
         Assert::exception(function () {
             $this->container->get(NonResolvable::class);
         }, \Hafo\DI\NotFoundException::class);

@@ -2,6 +2,8 @@
 
 namespace HafoTest;
 
+use Hafo\DI\Container;
+
 class A {}
 class B {
     function __construct(A $a) {}
@@ -39,30 +41,37 @@ class Blbost {
 class Blbost2 {
     function __construct(Blbost $blbost, C $c) {}
 }
+interface Something {}
 class NonResolvable {
     function __construct(Blbost $blbost, $test) {}
 }
-class Resolvable {
+class Resolvable implements Something {
     function __construct(Blbost2 $blbost, array $something = NULL) {}
+}
+class NeedsSomething {
+    function __construct(Something $something) {}
 }
 
 return [
-    A::class => function(\Hafo\DI\Container $container) {
+    A::class => function(Container $container) {
         return new A;
     },
-    B::class => function(\Hafo\DI\Container $container) {
+    B::class => function(Container $container) {
         return new B($container->get(A::class));
     },
-    C::class => function(\Hafo\DI\Container $container) {
+    C::class => function(Container $container) {
         return new C($container->get(A::class));
     },
-    D::class => function(\Hafo\DI\Container $container) {
+    D::class => function(Container $container) {
         return new D;
     },
-    E::class => function(\Hafo\DI\Container $container) {
+    E::class => function(Container $container) {
         return new E;
     },
-    'config' => function(\Hafo\DI\Container $container) {
+    'config' => function(Container $container) {
         return 'Test';
+    },
+    Something::class => function(Container $container) {
+        return $container->get(Resolvable::class);
     }
 ];

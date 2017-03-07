@@ -93,7 +93,7 @@ class DefaultContainer implements Container {
         }
         return function(Container $c) use ($id, $args) {
             return (new \ReflectionClass($id))->newInstanceArgs(array_map(function($arg) use ($c) {
-                return class_exists($arg) ? $c->get($arg) : $arg;
+                return class_exists($arg) || interface_exists($arg) ? $c->get($arg) : $arg;
             }, $args));
         };
     }
