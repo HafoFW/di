@@ -4,10 +4,13 @@ namespace HafoTest;
 
 require __DIR__ . '/../../bootstrap.php';
 
+use Nette\Caching\Cache;
+use Nette\Caching\Storages\DevNullStorage;
+use Nette\Caching\Storages\MemoryStorage;
 use Tester\TestCase;
 use Tester\Assert;
 
-class ContainerTest extends TestCase {
+class AutowiringTest extends TestCase {
 
     private $factories;
 
@@ -22,7 +25,8 @@ class ContainerTest extends TestCase {
     }
 
     function setUp() {
-        $this->container = new \Hafo\DI\DefaultContainer($this->factories, $this->decorators);
+        $cache = new Cache(new MemoryStorage);
+        $this->container = new \Hafo\DI\DefaultContainer($this->factories, $this->decorators, $cache);
     }
 
     function testContainerHas() {
@@ -30,8 +34,8 @@ class ContainerTest extends TestCase {
         Assert::true($this->container->has(B::class));
         Assert::true($this->container->has(C::class));
         Assert::true($this->container->has('config'));
-        Assert::false($this->container->has(Blbost::class));
-        Assert::false($this->container->has(Resolvable::class));
+        Assert::true($this->container->has(Blbost::class));
+        Assert::true($this->container->has(Resolvable::class));
         Assert::false($this->container->has(NonResolvable::class));
     }
 
@@ -40,8 +44,11 @@ class ContainerTest extends TestCase {
         Assert::type(B::class, $this->container->get(B::class));
         Assert::equal('Test', $this->container->get('config'));
         Assert::same($this->container->get(B::class), $this->container->get(B::class));
+        Assert::type(Blbost::class, $this->container->get(Blbost::class));
+        Assert::type(Blbost2::class, $this->container->get(Blbost2::class));
+        Assert::type(Resolvable::class, $this->container->get(Resolvable::class));
         Assert::exception(function () {
-            $this->container->get(Blbost::class);
+            $this->container->get(NonResolvable::class);
         }, \Hafo\DI\NotFoundException::class);
     }
 
@@ -49,17 +56,11 @@ class ContainerTest extends TestCase {
         Assert::type(A::class, $this->container->create(A::class));
         Assert::type(B::class, $this->container->create(B::class));
         Assert::notSame($this->container->create(B::class), $this->container->create(B::class));
+        Assert::type(Blbost2::class, $this->container->create(Blbost2::class));
+        Assert::type(Resolvable::class, $this->container->create(Resolvable::class));
         Assert::exception(function () {
-            $this->container->get('Blbost');
+            $this->container->create(NonResolvable::class);
         }, \Hafo\DI\NotFoundException::class);
-    }
-
-    function testDecorator() {
-        Assert::true($this->container->get(C::class)->isDecorated());
-        Assert::true($this->container->get(C::class)->isDecoratedAgain());
-        Assert::true($this->container->get(D::class)->isDecorated());
-
-        Assert::type(D::class, $this->container->get(E::class));
     }
 
     function tearDown() {
@@ -68,4 +69,4 @@ class ContainerTest extends TestCase {
 
 }
 
-(new ContainerTest(require __DIR__ . '/factories.php', require __DIR__ . '/decorators.php'))->run();
+(new AutowiringTest(require __DIR__ . '/factories.php', require __DIR__ . '/decorators.php'))->run();

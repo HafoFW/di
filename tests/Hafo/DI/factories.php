@@ -33,6 +33,18 @@ class D {
     }
 }
 class E {}
+class Blbost {
+    function __construct(A $a, B $b) {}
+}
+class Blbost2 {
+    function __construct(Blbost $blbost, C $c) {}
+}
+class NonResolvable {
+    function __construct(Blbost $blbost, $test) {}
+}
+class Resolvable {
+    function __construct(Blbost2 $blbost, array $something = NULL) {}
+}
 
 return [
     A::class => function(\Hafo\DI\Container $container) {

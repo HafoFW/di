@@ -3,6 +3,8 @@
 namespace Hafo\DI;
 
 use Interop\Container\ContainerInterface;
+use Nette\Caching\Cache;
+use Nette\Caching\Storages\FileStorage;
 
 class ContainerBuilder {
 
@@ -10,7 +12,9 @@ class ContainerBuilder {
 
     private $decorators = [];
 
-    function __construct(array $params = []) {
+    private $autowiringCache;
+
+    function __construct(array $params = [], Cache $autowiringCache = NULL) {
         $this->factories = array_combine(
             [Container::class, ContainerInterface::class, DefaultContainer::class],
             array_fill(0, 3, function(Container $c) {
@@ -22,6 +26,7 @@ class ContainerBuilder {
                 return $param;
             };
         }
+        $this->autowiringCache = $autowiringCache;
     }
 
     function addFactories($factories) {
@@ -47,7 +52,7 @@ class ContainerBuilder {
     }
 
     function createContainer() {
-        return new DefaultContainer($this->factories, $this->decorators);
+        return new DefaultContainer($this->factories, $this->decorators, $this->autowiringCache);
     }
 
 }

@@ -11,6 +11,7 @@
     "container-interop/container-interop": "1.*"
   },
   "require-dev": {
-    "nette/tester": "1.*"
+    "nette/tester": "1.*",
+    "nette/caching": "2.*"
   }
 }
