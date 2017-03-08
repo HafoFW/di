@@ -42,14 +42,21 @@ class Blbost2 {
     function __construct(Blbost $blbost, C $c) {}
 }
 interface Something {}
-class NonResolvable {
-    function __construct(Blbost $blbost, $test) {}
-}
 class Resolvable implements Something {
     function __construct(Blbost2 $blbost, array $something = NULL) {}
 }
 class NeedsSomething {
     function __construct(Something $something) {}
+}
+class NeedsParameters {
+    public $a;
+    public $b;
+    public $c;
+    function __construct(Something $something, $a, $b, array $c) {
+        $this->a = $a;
+        $this->b = $b;
+        $this->c = $c;
+    }
 }
 
 return [

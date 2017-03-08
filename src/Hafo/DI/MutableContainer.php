@@ -28,11 +28,11 @@ class MutableContainer implements Container {
         return $this->container->get($id);
     }
 
-    function create($id) {
+    function create($id, ...$args) {
         if(isset($this->factories[$id])) {
-            return $this->factories[$id]($this);
+            return $this->factories[$id]($this, ...$args);
         }
-        return $this->container->create($id);
+        return $this->container->create($id, ...$args);
     }
 
     function has($id) {

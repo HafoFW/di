@@ -51,11 +51,11 @@ class DefaultContainer implements Container {
         return $has;
     }
 
-    function create($id) {
+    function create($id, ...$args) {
         if(!$this->has($id)) {
             throw new NotFoundException;
         }
-        $instance = $this->factories[$id]($this);
+        $instance = $this->factories[$id]($this, ...$args);
         if(!is_object($instance)) {
             return $instance;
         }
@@ -91,8 +91,11 @@ class DefaultContainer implements Container {
         if(!is_array($args)) {
             return FALSE;
         }
-        return function(Container $c) use ($id, $args) {
-            return (new \ReflectionClass($id))->newInstanceArgs(array_map(function($arg) use ($c) {
+        return function(Container $c, ...$passedArgs) use ($id, $args) {
+            return (new \ReflectionClass($id))->newInstanceArgs(array_map(function($arg) use ($c, &$passedArgs) {
+                if($arg instanceof RequiredParameter) {
+                    return array_shift($passedArgs);
+                }
                 return class_exists($arg) || interface_exists($arg) ? $c->get($arg) : $arg;
             }, $args));
         };
@@ -103,12 +106,16 @@ class DefaultContainer implements Container {
             $resolved = [];
 
             $ctor = (new \ReflectionClass($id))->getConstructor();
+            if($ctor === NULL) {
+                return [];
+            }
             foreach($ctor->getParameters() as $param) {
                 $paramClass = $param->getClass();
                 if($paramClass === NULL && !$param->isDefaultValueAvailable()) {
-                    return FALSE;
+                    $resolved[$param->getPosition()] = new RequiredParameter;
+                } else {
+                    $resolved[$param->getPosition()] = $paramClass === NULL ? $param->getDefaultValue() : $paramClass->getName();
                 }
-                $resolved[$param->getPosition()] = $paramClass === NULL ? $param->getDefaultValue() : $paramClass->getName();
             }
             return $resolved;
         }

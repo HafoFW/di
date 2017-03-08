@@ -14,12 +14,13 @@ interface Container extends ContainerInterface {
      * Creates a new instance by identifier and returns it.
      *
      * @param string $id Identifier
+     * @param array $args Constructor arguments
      *
      * @throws NotFoundException No entry was found for this identifier.
      * @throws ContainerException Error while creating the entry.
      *
      * @return mixed Entry.
      */
-    function create($id);
+    function create($id, ...$args);
 
 }

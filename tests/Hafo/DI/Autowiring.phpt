@@ -36,7 +36,6 @@ class AutowiringTest extends TestCase {
         Assert::true($this->container->has('config'));
         Assert::true($this->container->has(Blbost::class));
         Assert::true($this->container->has(Resolvable::class));
-        Assert::false($this->container->has(NonResolvable::class));
     }
 
     function testContainerGet() {
@@ -49,9 +48,6 @@ class AutowiringTest extends TestCase {
         Assert::type(Resolvable::class, $this->container->get(Resolvable::class));
         Assert::type(Something::class, $this->container->get(Something::class));
         Assert::type(NeedsSomething::class, $this->container->get(NeedsSomething::class));
-        Assert::exception(function () {
-            $this->container->get(NonResolvable::class);
-        }, \Hafo\DI\NotFoundException::class);
     }
 
     function testContainerCreate() {
@@ -60,9 +56,14 @@ class AutowiringTest extends TestCase {
         Assert::notSame($this->container->create(B::class), $this->container->create(B::class));
         Assert::type(Blbost2::class, $this->container->create(Blbost2::class));
         Assert::type(Resolvable::class, $this->container->create(Resolvable::class));
-        Assert::exception(function () {
-            $this->container->create(NonResolvable::class);
-        }, \Hafo\DI\NotFoundException::class);
+    }
+
+    function testAutowireParameters() {
+        $obj = $this->container->create(NeedsParameters::class, 'a', 'B', ['c']);
+        Assert::type(NeedsParameters::class, $obj);
+        Assert::same('a', $obj->a);
+        Assert::same('B', $obj->b);
+        Assert::same(['c'], $obj->c);
     }
 
     function tearDown() {
