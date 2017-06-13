@@ -64,10 +64,7 @@ class DefaultContainer implements Container {
 
     private function decorate($instance) {
         $decorators = array_filter($this->decorators, function($type) use ($instance) {
-            if(get_class($instance) === $type || is_subclass_of($instance, $type) || array_key_exists($type, class_implements($instance))) {
-                return TRUE;
-            }
-            return FALSE;
+            return is_a($instance, $type);
         }, \ARRAY_FILTER_USE_KEY);
         foreach($decorators as $decorator) {
             $actualDecorators = $decorator;
