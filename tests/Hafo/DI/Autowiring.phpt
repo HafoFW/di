@@ -26,7 +26,7 @@ class AutowiringTest extends TestCase {
 
     function setUp() {
         $cache = new Cache(new MemoryStorage);
-        $this->container = new \Hafo\DI\DefaultContainer($this->factories, $this->decorators, $cache);
+        $this->container = new \Hafo\DI\Container\DefaultContainer($this->factories, $this->decorators, $cache);
     }
 
     function testContainerHas() {

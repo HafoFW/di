@@ -1,41 +1,47 @@
 <?php
+declare(strict_types=1);
 
-namespace Hafo\DI;
+namespace Hafo\DI\Container;
+use Hafo\DI\Container;
 
 /**
  * A decorator that makes Hafo DI container mutable.
  * @internal Not intended for use outside of tests.
  */
-class MutableContainer implements Container {
-
+final class MutableContainer implements Container
+{
+    /** @var Container */
     private $container;
 
     private $services = [];
 
     private $factories = [];
 
-    function __construct(Container $container) {
+    public function __construct(Container $container) {
         $this->container = $container;
     }
 
-    function get($id) {
+    public function get($id) {
         if(!isset($this->services[$id]) && isset($this->factories[$id])) {
             return $this->services[$id] = $this->create($id);
         }
+
         if(isset($this->services[$id])) {
             return $this->services[$id];
         }
+
         return $this->container->get($id);
     }
 
-    function create($id, ...$args) {
+    public function create($id, ...$args) {
         if(isset($this->factories[$id])) {
             return $this->factories[$id]($this, ...$args);
         }
+
         return $this->container->create($id, ...$args);
     }
 
-    function has($id) {
+    public function has($id) {
         return isset($this->factories[$id]) || $this->container->has($id);
     }
 
@@ -46,8 +52,9 @@ class MutableContainer implements Container {
      * @param mixed $service
      * @return $this
      */
-    function replace($id, $service) {
+    public function replace($id, $service) {
         $this->services[$id] = $service;
+
         return $this;
     }
 
@@ -58,9 +65,9 @@ class MutableContainer implements Container {
      * @param callable $factory function(Container $container)
      * @return $this
      */
-    function add($id, $factory) {
+    public function add($id, $factory) {
         $this->factories[$id] = $factory;
+
         return $this;
     }
-
 }

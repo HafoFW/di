@@ -6,7 +6,7 @@ require __DIR__ . '/../../bootstrap.php';
 
 use Hafo\DI\Container;
 use Hafo\DI\ContainerBuilder;
-use Hafo\DI\DefaultContainer;
+use Hafo\DI\Container\DefaultContainer;
 use Interop\Container\ContainerInterface;
 use Tester\TestCase;
 use Tester\Assert;

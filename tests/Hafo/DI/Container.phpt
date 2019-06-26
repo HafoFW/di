@@ -22,7 +22,7 @@ class ContainerTest extends TestCase {
     }
 
     function setUp() {
-        $this->container = new \Hafo\DI\DefaultContainer($this->factories, $this->decorators);
+        $this->container = new \Hafo\DI\Container\DefaultContainer($this->factories, $this->decorators);
     }
 
     function testContainerHas() {
@@ -42,10 +42,10 @@ class ContainerTest extends TestCase {
         Assert::same($this->container->get(B::class), $this->container->get(B::class));
         Assert::exception(function () {
             $this->container->get(Blbost::class);
-        }, \Hafo\DI\NotFoundException::class);
+        }, \Hafo\DI\Exception\NotFoundException::class);
         Assert::exception(function() {
             $this->container->get(Something::class);
-        }, \Hafo\DI\NotFoundException::class);
+        }, \Hafo\DI\Exception\NotFoundException::class);
     }
 
     function testContainerCreate() {
@@ -54,7 +54,7 @@ class ContainerTest extends TestCase {
         Assert::notSame($this->container->create(B::class), $this->container->create(B::class));
         Assert::exception(function () {
             $this->container->get('Blbost');
-        }, \Hafo\DI\NotFoundException::class);
+        }, \Hafo\DI\Exception\NotFoundException::class);
     }
 
     function testDecorator() {

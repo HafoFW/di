@@ -13,7 +13,7 @@ class MutableContainerTest extends TestCase {
 
     private $decorators;
 
-    /** @var \Hafo\DI\MutableContainer */
+    /** @var \Hafo\DI\Container\MutableContainer */
     private $container;
 
     function __construct($factories, $decorators) {
@@ -22,7 +22,7 @@ class MutableContainerTest extends TestCase {
     }
 
     function setUp() {
-        $this->container = new \Hafo\DI\MutableContainer(new \Hafo\DI\DefaultContainer($this->factories, $this->decorators));
+        $this->container = new \Hafo\DI\Container\MutableContainer(new \Hafo\DI\Container\DefaultContainer($this->factories, $this->decorators));
     }
 
     function testReplace() {
