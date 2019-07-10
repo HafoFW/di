@@ -11,7 +11,9 @@
     "php": ">=7.1.0"
   },
   "require-dev": {
-    "nette/tester": "1.*",
-    "nette/caching": "2.*"
+    "phpunit/phpunit": "^7.5"
+  },
+  "suggest": {
+    "nette/caching": "To be able to use NetteCache class for Autowiring"
   }
 }

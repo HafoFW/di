@@ -1,0 +1,14 @@
+{
+  "methodCalls": [
+    {
+      "class": "\\Psr\\Container\\ContainerInterface",
+      "method": "get",
+      "position": 0
+    },
+    {
+      "class": "\\Hafo\\DI\\Container",
+      "method": "create",
+      "position": 0
+    }
+  ]
+}

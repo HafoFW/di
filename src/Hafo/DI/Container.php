@@ -7,12 +7,11 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-
 /**
  * PSR dependency injection container with a factory method.
  */
-interface Container extends ContainerInterface {
-
+interface Container extends ContainerInterface
+{
     /**
      * Creates a new instance by identifier and returns it.
      *
@@ -25,5 +24,4 @@ interface Container extends ContainerInterface {
      * @return mixed Entry.
      */
     public function create($id, ...$args);
-
 }

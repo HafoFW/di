@@ -16,26 +16,28 @@ final class DefaultContainer implements Container
     /** @var callable[][] */
     private $decorators;
 
+    /** @var Autowiring */
+    private $autowiring;
+
     /** @var mixed[] */
     private $services = [];
 
-    /** @var Autowiring|null */
-    private $autowiring;
-
     /**
-     * @param callable[] $factories Array (or \ArrayAccess) of identifier => function(Container $container)
-     * @param callable[][] $decorators Array (or \ArrayAccess) of identifier => [function($service, Container $container)]
-     * @param Autowiring|null $autowiring
+     * @param callable[] $factories Array of identifier => function(Container $container)
+     * @param callable[][] $decorators Array of identifier => [function($service, Container $container)]
+     * @param Autowiring $autowiring
      */
-    public function __construct($factories, $decorators = [], Autowiring $autowiring = null) {
+    public function __construct(array $factories = [], array $decorators = [], Autowiring $autowiring = null)
+    {
         $this->factories = $factories;
         $this->decorators = $decorators;
-        $this->autowiring = $autowiring;
+        $this->autowiring = $autowiring === null ? new Autowiring\NoAutowiring() : $autowiring;
     }
 
-    public function get($id) {
-        if(!isset($this->services[$id])) {
-            if(!$this->has($id)) {
+    public function get($id)
+    {
+        if (!array_key_exists($id, $this->services)) {
+            if (!$this->has($id)) {
                 throw new NotFoundException("Entry with id {$id} not found.");
             }
             $this->services[$id] = $this->create($id);
@@ -44,11 +46,11 @@ final class DefaultContainer implements Container
         return $this->services[$id];
     }
 
-    public function has($id) {
-        $has = isset($this->factories[$id]);
-        if(!$has && $this->autowiring) {
+    public function has($id)
+    {
+        if (!array_key_exists($id, $this->factories)) {
             $factory = $this->autowiring->createFactory($id);
-            if(!$factory) {
+            if (!$factory) {
                 return false;
             }
 
@@ -57,17 +59,18 @@ final class DefaultContainer implements Container
             return true;
         }
 
-        return $has;
+        return true;
     }
 
-    public function create($id, ...$args) {
-        if(!$this->has($id)) {
+    public function create($id, ...$args)
+    {
+        if (!$this->has($id)) {
             throw new NotFoundException("Entry with id {$id} not found.");
         }
 
         try {
             $instance = $this->factories[$id]($this, ...$args);
-            if(!is_object($instance)) {
+            if (!is_object($instance)) {
                 return $instance;
             }
 
@@ -77,20 +80,20 @@ final class DefaultContainer implements Container
         }
     }
 
-    private function decorate($instance) {
-        $decorators = array_filter($this->decorators, function($type) use ($instance) {
+    private function decorate($instance)
+    {
+        $decoratorGroup = array_filter($this->decorators, function ($type) use ($instance) {
             return is_a($instance, $type);
         }, \ARRAY_FILTER_USE_KEY);
 
-        foreach($decorators as $decorator) {
-            $actualDecorators = $decorator;
-            if(!is_array($decorator) && is_callable($decorator)) { // back compatibility
-                $actualDecorators = [$decorator];
+        foreach ($decoratorGroup as $decorators) {
+            if (is_callable($decorators)) {
+                $decorators = [$decorators];
             }
 
-            foreach($actualDecorators as $actualDecorator) {
-                $ret = $actualDecorator($instance, $this);
-                if($ret !== null) {
+            foreach ($decorators as $decorator) {
+                $ret = $decorator($instance, $this);
+                if ($ret !== null) {
                     $instance = $ret;
                 }
             }
