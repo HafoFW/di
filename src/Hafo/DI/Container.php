@@ -1,26 +1,27 @@
 <?php
+declare(strict_types=1);
 
 namespace Hafo\DI;
 
-use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
- * The interface of an Interop dependency injection container with a factory method.
+ * PSR dependency injection container with a factory method.
  */
-interface Container extends ContainerInterface {
-
+interface Container extends ContainerInterface
+{
     /**
      * Creates a new instance by identifier and returns it.
      *
      * @param string $id Identifier
      * @param array $args Constructor arguments
      *
-     * @throws NotFoundException No entry was found for this identifier.
-     * @throws ContainerException Error while creating the entry.
+     * @throws NotFoundExceptionInterface No entry was found for this identifier.
+     * @throws ContainerExceptionInterface Error while creating the entry.
      *
      * @return mixed Entry.
      */
-    function create($id, ...$args);
-
+    public function create($id, ...$args);
 }

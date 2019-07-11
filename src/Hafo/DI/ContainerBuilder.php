@@ -1,58 +1,79 @@
 <?php
+declare(strict_types=1);
 
 namespace Hafo\DI;
 
-use Interop\Container\ContainerInterface;
-use Nette\Caching\Cache;
-use Nette\Caching\Storages\FileStorage;
+use Hafo\DI\Container\DefaultContainer;
+use Psr\Container\ContainerInterface;
 
-class ContainerBuilder {
-
+final class ContainerBuilder
+{
     private $factories = [];
 
     private $decorators = [];
 
-    private $autowiringCache;
+    /** @var Autowiring|null */
+    private $autowiring;
 
-    function __construct(array $params = [], Cache $autowiringCache = NULL) {
+    public function __construct()
+    {
+        // register the container itself
         $this->factories = array_combine(
-            [Container::class, ContainerInterface::class, DefaultContainer::class],
-            array_fill(0, 3, function(Container $c) {
+            [
+                Container::class,
+                ContainerInterface::class,
+                DefaultContainer::class,
+            ],
+            array_fill(0, 3, function (Container $c) {
                 return $c;
             })
         );
-        foreach($params as $key => $param) {
+    }
+
+    /**
+     * @param callable[] $factories Array of identifier => function(Container $container)
+     */
+    public function addFactories(array $factories): void
+    {
+        foreach ($factories as $key => $value) {
+            $this->factories[$key] = $value;
+        }
+    }
+
+    /**
+     * @param callable[][] $decorators Array of identifier => [function($service, Container $container)]
+     */
+    public function addDecorators(array $decorators): void
+    {
+        foreach ($decorators as $key => $value) {
+            if (is_callable($value)) {
+                $value = [$value];
+            }
+            if (!array_key_exists($key, $this->decorators)) {
+                $this->decorators[$key] = [];
+            }
+            foreach ($value as $decorator) {
+                $this->decorators[$key][] = $decorator;
+            }
+        }
+    }
+
+    public function addParameters(iterable $parameters): void
+    {
+        foreach ($parameters as $key => $param) {
             $this->factories[$key] = function (Container $c) use ($param) {
                 return $param;
             };
         }
-        $this->autowiringCache = $autowiringCache;
     }
 
-    function addFactories($factories) {
-        foreach($factories as $key => $value) {
-            $this->factories[$key] = $value;
-        }
-        return $this;
+    public function setAutowiring(Autowiring $autowiring): void
+    {
+        $this->autowiring = $autowiring;
     }
 
-    function addDecorators($decorators) {
-        foreach($decorators as $key => $value) {
-            if(array_key_exists($key, $this->decorators)) {
-                if(!is_array($this->decorators[$key])) {
-                    $existing = $this->decorators[$key];
-                    $this->decorators[$key] = [$existing];
-                }
-                $this->decorators[$key][] = $value;
-            } else {
-                $this->decorators[$key] = $value;
-            }
-        }
-        return $this;
+    public function createContainer(): DefaultContainer
+    {
+        return new DefaultContainer($this->factories, $this->decorators, $this->autowiring);
     }
-
-    function createContainer() {
-        return new DefaultContainer($this->factories, $this->decorators, $this->autowiringCache);
-    }
-
 }

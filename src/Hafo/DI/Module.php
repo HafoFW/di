@@ -1,9 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace Hafo\DI;
 
-interface Module {
-
-    function install(ContainerBuilder $builder);
-
+interface Module
+{
+    public function install(ContainerBuilder $builder);
 }
