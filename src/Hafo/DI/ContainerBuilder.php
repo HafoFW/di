@@ -31,9 +31,9 @@ final class ContainerBuilder
     }
 
     /**
-     * @param callable[] $factories Array of identifier => function(Container $container)
+     * @param iterable|callable[] $factories Array of identifier => function(Container $container)
      */
-    public function addFactories(array $factories): void
+    public function addFactories(iterable $factories): void
     {
         foreach ($factories as $key => $value) {
             $this->factories[$key] = $value;
@@ -41,9 +41,21 @@ final class ContainerBuilder
     }
 
     /**
-     * @param callable[][] $decorators Array of identifier => [function($service, Container $container)]
+     * @param iterable|string[] $map Array of Interface => Classname
      */
-    public function addDecorators(array $decorators): void
+    public function addInterfaceImplementationMap(iterable $map): void
+    {
+        foreach ($map as $interface => $className) {
+            $this->factories[$interface] = function (Container $container) use ($className) {
+                return $container->get($className);
+            };
+        }
+    }
+
+    /**
+     * @param iterable|callable[][] $decorators Array of identifier => [function($service, Container $container)]
+     */
+    public function addDecorators(iterable $decorators): void
     {
         foreach ($decorators as $key => $value) {
             if (is_callable($value)) {

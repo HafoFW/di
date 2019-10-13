@@ -37,30 +37,36 @@ final class DefaultAutowiring implements Autowiring
         };
     }
 
-    private function resolveConstructorParameters($id)
+    private function resolveConstructorParameters($id): ?array
     {
-        if (class_exists($id)) {
-            $resolved = [];
-
-            $ctor = (new \ReflectionClass($id))->getConstructor();
-            if ($ctor === null) {
-                return [];
-            }
-
-            foreach ($ctor->getParameters() as $param) {
-                $paramClass = $param->getClass();
-                if ($paramClass === null && !$param->isDefaultValueAvailable()) {
-                    $resolved[$param->getPosition()] = new RequiredParameter();
-                } else {
-                    $resolved[$param->getPosition()] = $paramClass === null
-                        ? $param->getDefaultValue()
-                        : $paramClass->getName();
-                }
-            }
-
-            return $resolved;
+        if (!class_exists($id)) {
+            return null;
         }
 
-        return null;
+        $resolved = [];
+
+        try {
+            $reflection = new \ReflectionClass($id);
+        } catch (\ReflectionException $e) {
+            return null;
+        }
+
+        $ctor = $reflection->getConstructor();
+        if ($ctor === null) {
+            return [];
+        }
+
+        foreach ($ctor->getParameters() as $param) {
+            $paramClass = $param->getClass();
+            if ($paramClass === null && !$param->isDefaultValueAvailable()) {
+                $resolved[$param->getPosition()] = new RequiredParameter();
+            } else {
+                $resolved[$param->getPosition()] = $paramClass === null
+                    ? $param->getDefaultValue()
+                    : $paramClass->getName();
+            }
+        }
+
+        return $resolved;
     }
 }

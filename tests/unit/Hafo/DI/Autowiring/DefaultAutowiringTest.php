@@ -49,4 +49,14 @@ class DefaultAutowiringTest extends TestCase
 
         self::assertInstanceOf(DefaultAutowiring::class, $instance);
     }
+
+    public function testClassNotFound()
+    {
+        $autowiringCache = new MemoryCache();
+        $autowiring = new DefaultAutowiring($autowiringCache);
+
+        $factory = $autowiring->createFactory('\Hafo\DI\Autowiring\Class\Not\Found');
+
+        self::assertNull($factory);
+    }
 }
