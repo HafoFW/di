@@ -104,4 +104,24 @@ class ContainerBuilderTest extends TestCase
         $instance = $container->get(\stdClass::class);
         self::assertInstanceOf(\stdClass::class, $instance);
     }
+
+    public function testInterfaceImplementationMap()
+    {
+        $builder = new ContainerBuilder();
+        $builder->addFactories([
+            \ArrayIterator::class => function () {
+                return new \ArrayIterator();
+            },
+        ]);
+        $builder->addInterfaceImplementationMap([
+            \Countable::class => \ArrayIterator::class,
+        ]);
+
+        $container = $builder->createContainer();
+
+        self::assertTrue($container->has(\Countable::class));
+
+        $instance = $container->get(\Countable::class);
+        self::assertInstanceOf(\ArrayIterator::class, $instance);
+    }
 }

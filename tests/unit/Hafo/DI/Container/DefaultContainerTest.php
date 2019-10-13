@@ -29,6 +29,16 @@ class DefaultContainerTest extends TestCase
         self::assertInstanceOf(\stdClass::class, $instance);
     }
 
+    public function testGetReturnsSameInstance()
+    {
+        $container = new DefaultContainer([], [], $this->createAutowiring());
+
+        $instance = $container->get(\stdClass::class);
+        $instance2 = $container->get(\stdClass::class);
+
+        self::assertSame($instance, $instance2);
+    }
+
     public function testCreateNotFound()
     {
         self::expectException(NotFoundException::class);
@@ -57,6 +67,16 @@ class DefaultContainerTest extends TestCase
         self::assertEquals('Asia/Baku', $instance->getTimezone()->getName());
     }
 
+    public function testCreateReturnsNewInstance()
+    {
+        $container = new DefaultContainer([], [], $this->createAutowiring());
+
+        $instance = $container->create(\DateTimeImmutable::class);
+        $instance2 = $container->create(\DateTimeImmutable::class);
+
+        self::assertNotSame($instance, $instance2);
+    }
+
     public function testDecorators()
     {
         $decorators = [
@@ -70,6 +90,33 @@ class DefaultContainerTest extends TestCase
         $instance = $container->get(\stdClass::class);
         self::assertInstanceOf(\stdClass::class, $instance);
         self::assertEquals('bar', $instance->foo);
+    }
+
+    public function testDecoratorsDecorateEachInstanceOnce()
+    {
+        $timesDecorated = 0;
+        $decorators = [
+            \SeekableIterator::class => [
+                function (\SeekableIterator $instance, Container $container) use (&$timesDecorated) {
+                    $timesDecorated++;
+                },
+            ],
+        ];
+        $factories = [
+            \SeekableIterator::class => function () {
+                return new \ArrayIterator();
+            },
+        ];
+        $container = new DefaultContainer($factories, $decorators, $this->createAutowiring());
+        $instance = $container->get(\SeekableIterator::class);
+        $instance2 = $container->get(\SeekableIterator::class);
+        self::assertSame($instance2, $instance);
+        self::assertInstanceOf(\ArrayIterator::class, $instance);
+        self::assertEquals(1, $timesDecorated);
+
+        $instance3 = $container->create(\SeekableIterator::class);
+        self::assertNotSame($instance, $instance3);
+        self::assertEquals(2, $timesDecorated);
     }
 
     public function testDecoratorsNotArrayOfArrays()

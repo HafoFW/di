@@ -22,12 +22,15 @@ final class DefaultContainer implements Container
     /** @var mixed[] */
     private $services = [];
 
+    /** @var string[][] */
+    private $decoratorsUsed = [];
+
     /**
-     * @param callable[] $factories Array of identifier => function(Container $container)
-     * @param callable[][] $decorators Array of identifier => [function($service, Container $container)]
+     * @param iterable|callable[] $factories Array of identifier => function(Container $container)
+     * @param iterable|callable[][] $decorators Array of identifier => [function($service, Container $container)]
      * @param Autowiring $autowiring
      */
-    public function __construct(array $factories = [], array $decorators = [], Autowiring $autowiring = null)
+    public function __construct(iterable $factories = [], iterable $decorators = [], Autowiring $autowiring = null)
     {
         $this->factories = $factories;
         $this->decorators = $decorators;
@@ -82,11 +85,20 @@ final class DefaultContainer implements Container
 
     private function decorate($instance)
     {
+        $objectHash = spl_object_hash($instance);
+        if (!array_key_exists($objectHash, $this->decoratorsUsed)) {
+            $this->decoratorsUsed[$objectHash] = [];
+        }
+
         $decoratorGroup = array_filter($this->decorators, function ($type) use ($instance) {
             return is_a($instance, $type);
         }, \ARRAY_FILTER_USE_KEY);
 
-        foreach ($decoratorGroup as $decorators) {
+        foreach ($decoratorGroup as $name => $decorators) {
+            if (array_key_exists($name, $this->decoratorsUsed[$objectHash])) {
+                continue;
+            }
+
             if (is_callable($decorators)) {
                 $decorators = [$decorators];
             }
@@ -97,6 +109,8 @@ final class DefaultContainer implements Container
                     $instance = $ret;
                 }
             }
+
+            $this->decoratorsUsed[$objectHash][$name] = true;
         }
 
         return $instance;
