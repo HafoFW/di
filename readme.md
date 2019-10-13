@@ -1,11 +1,11 @@
-## Hafo DI
+# Hafo DI
 
-### What is this?
+## What is this?
 
 This is a small PHP Dependency Injection Container with autowiring and as little configuration as possible.
 It extends `Psr\Container\ContainerInterface` and provides some goodies to help accelerate development.
 
-### How do I install this?
+## How do I install this?
 
 Via Composer:
 
@@ -15,7 +15,7 @@ composer require hafo/di
 
 PHP version 7.1 or higher is required.
 
-### How to use?
+## How to use?
 
 The easiest way is to use the `ContainerBuilder` class:
 
@@ -38,7 +38,7 @@ $application = $container->get(Symfony\Component\Console\Application::class);
 $application->run();
 ```
 
-#### Adding service factories
+### Adding service factories
 
 You can add services via ContainerBuilder:
 
@@ -56,7 +56,7 @@ Also, it's best practice.
 
 Parameter can be an array, or any iterable really, as long as it provides both the keys and the factory callbacks.
 
-#### Decorating services
+### Decorating services
 
 A decorator is a simple callback that gets called when a service is created. It can be used to modify
 the service before returning it.
@@ -80,7 +80,7 @@ so you can easily decorate multiple services that implement same interface, for 
 
 The container makes sure that each decorator gets called only once for each service instance.
 
-#### Adding parameters
+### Adding parameters
 
 You can also add parameters:
 
@@ -93,7 +93,7 @@ $builder->addParameters([
 
 Parameters are then registered in the DI container and can be accessed via the `get()` method, just like the services.
 
-#### Using autowiring
+### Using autowiring
 
 If you want to avoid writing many factories by hand, you can use autowiring.
 Just make sure that the constructor arguments for your service are resolvable, which means that all the dependencies must
@@ -115,7 +115,7 @@ You can use `Hafo\DI\Autowiring\AutowiringCache\NetteCache` instead of `MemoryCa
 
 You can also implement your own `Hafo\DI\Autowiring\AutowiringCache` or even `Hafo\DI\Autowiring`.
 
-#### Interface-implementation map
+### Interface-implementation map
 
 It is good practice to use interfaces for your services. The DI container however doesn't know by default which specific class
 you want to return. We need to specify it:
@@ -126,7 +126,7 @@ $builder->addInterfaceImplementationMap([
 ]);
 ```
 
-#### Reusable modules
+### Reusable modules
 
 You can create self-contained reusable modules simply by implementing the `Hafo\DI\Module` interface.
 Making the module work in your project is then as easy as instantiating it and calling a method `install`,
